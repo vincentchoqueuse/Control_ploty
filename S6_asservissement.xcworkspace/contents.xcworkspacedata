@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:/Users/vincentchoqueuse/Documents/codes/share/control_plotly/requirements.txt">
+   </FileRef>
+   <Group
+      location = "group:ENIB_control"
+      name = "ENIB_control">
+      <FileRef
+         location = "group:plot.py">
+      </FileRef>
+      <Group
+         location = "group:__pycache__"
+         name = "__pycache__">
+         <FileRef
+            location = "group:utils.cpython-37.pyc">
+         </FileRef>
+      </Group>
+      <FileRef
+         location = "group:utils.py">
+      </FileRef>
+      <FileRef
+         location = "group:__init__.py">
+      </FileRef>
+   </Group>
+</Workspace>

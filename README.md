@@ -7,4 +7,4 @@
 
 ## Getting Started
 
-Start and launch the file `test.py` with jupyter notebook.
+Start and launch the file `test.ipynb` with jupyter notebook.

@@ -1,2 +1,3 @@
 control
 plotly==4.3.0
+.ipynb_checkpoints

@@ -36,10 +36,12 @@ def default_T(tf_list,N):
 def impulse(tf_list=[],N=200,T=None,name=None):
     
     data = []
+    tf_list=create_list(tf_list)
+    
     if T is None :
         T = default_T(tf_list,N=N)
 
-    for index,tf in enumerate(create_list(tf_list)):
+    for index,tf in enumerate(tf_list):
         t,y = ctl.impulse_response(tf, T=T)
         
         if hasattr(tf, "name"):
@@ -56,10 +58,12 @@ def impulse(tf_list=[],N=200,T=None,name=None):
 def step(tf_list=[],N=200,T=None,name=None):
     
     data = []
+    tf_list=create_list(tf_list)
+    
     if T is None :
         T = default_T(tf_list,N=N)
         
-    for index,tf in enumerate(create_list(tf_list)):
+    for index,tf in enumerate(tf_list):
         t,y = ctl.step_response(tf, T=T)
 
         if hasattr(tf, "name"):
@@ -76,10 +80,12 @@ def step(tf_list=[],N=200,T=None,name=None):
 def step_info(tf_list=[],config = 0.05,N=200,T=None):
     
     data = []
+    tf_list=create_list(tf_list)
+    
     if T is None :
         T = default_T(tf_list,N=N)
     
-    for index,tf in enumerate(create_list(tf_list)):
+    for index,tf in enumerate(tf_list):
         t,y = ctl.step_response(tf, T=T)
         # extract setting time
         final_value = y[-1]
@@ -128,15 +134,18 @@ def pzmap(tf_list=[],name=None,layout=None):
 
 # BODE PLOT
 def bode(tf_list=[],omega=None,name=None):
+    
+    tf_list = create_list(tf_list)
 
     hovertemplate_mag = "<b>w</b>: %{x:.3f} rad/s<br><b>mag</b>: %{y:.3f} dB<br><b>phase</b>: %{text:.3f} deg<br>"
     hovertemplate_phase = "<b>w</b>: %{x:.3f} rad/s<br><b>mag</b>: %{text:.3f} dB<br><b>phase</b>: %{y:.3f} deg<br>"
     
     fig = make_subplots(rows=2, cols=1,shared_xaxes=True)
-    tf_list = create_list(tf_list)
+    
     
     mag_list,phase_list,omega_list = ctl.bode_plot(tf_list , omega=None,Plot=False, omega_limits=None, omega_num=None,margins=None)
     
+    tf_list=create_list(tf_list)
     for index,tf in enumerate(tf_list):
         
         omega = omega_list[index]
@@ -164,6 +173,8 @@ def bode(tf_list=[],omega=None,name=None):
 
 def nichols(tf_list=[],omega=None,show_mag_grid=True,show_phase_grid=False,cl_mags = None,cl_phases = None, name=None):
 
+    tf_list = create_list(tf_list)
+    
     xlabel = "Phase (deg)"
     ylabel = "Magnitude (dB)"
 

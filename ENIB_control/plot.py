@@ -33,7 +33,7 @@ def default_T(tf_list,N):
     return T
 
 
-def impulse(tf_list=[],N=100,T=None,name=None):
+def impulse(tf_list=[],N=200,T=None,name=None):
     
     data = []
     if T is None :
@@ -53,7 +53,7 @@ def impulse(tf_list=[],N=100,T=None,name=None):
     fig = go.Figure(data,layout=layout)
     fig.show()
 
-def step(tf_list=[],N=100,T=None,name=None):
+def step(tf_list=[],N=200,T=None,name=None):
     
     data = []
     if T is None :
@@ -72,6 +72,27 @@ def step(tf_list=[],N=100,T=None,name=None):
     layout = default_layout("time (s)","response",name)
     fig = go.Figure(data,layout=layout)
     fig.show()
+
+def step_info(tf_list=[],config = 0.05,N=200,T=None):
+    
+    data = []
+    if T is None :
+        T = default_T(tf_list,N=N)
+    
+    for index,tf in enumerate(create_list(tf_list)):
+        t,y = ctl.step_response(tf, T=T)
+        # extract setting time
+        final_value = y[-1]
+        index_time = np.where(np.abs(y-final_value) > config*final_value)[0]
+        settling_time = t[index_time[-1]]
+        max_value = np.max(y)
+        overshoot = 100*(max_value-final_value)/final_value
+        print("# System {}".format(index+1))
+        print("\tfinal value = {0:.4f}".format(final_value))
+        print("\tsettling time = {0:.4f}".format(settling_time))
+        print("\tmax value = {0:.4f}".format(max_value))
+        print("\tovershoot = {0:.4f} %".format(overshoot))
+
 
 
 # ZERO POLE PLOT

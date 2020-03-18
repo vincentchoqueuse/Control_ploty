@@ -1,6 +1,21 @@
 import numpy as np
 import scipy as sp
+from scipy.signal.ltisys import _default_response_times
+import control as ctl
 
+
+def get_T(tf_list,N=200,T=None):
+    """ Get Time vector """
+    if T is None:
+        t_max = 0
+        for tf in tf_list:
+            ss = ctl.tf2ss(tf)
+            T_temp = _default_response_times(ss.A, N)
+            t_max_temp = T_temp[-1]
+            if t_max_temp > t_max:
+                t_max = t_max_temp
+                T = T_temp
+    return T
 
 def nichols_grid(cl_mags=None, cl_phases=None):
     """Nichols chart grid
@@ -31,6 +46,8 @@ def nichols_grid(cl_mags=None, cl_phases=None):
         extended_cl_mags = np.arange(np.min(key_cl_mags),
                                      ol_mag_min + cl_mag_step, cl_mag_step)
         cl_mags = np.concatenate((extended_cl_mags, key_cl_mags))
+    else :
+        cl_mags = np.array(cl_mags)
 
     # N-circle phases (should be in the range -360 to 0)
     if cl_phases is None:
@@ -42,6 +59,7 @@ def nichols_grid(cl_mags=None, cl_phases=None):
             other_cl_phases = np.arange(-10.0, -360.0, -20.0)
         cl_phases = np.concatenate((key_cl_phases, other_cl_phases))
     else:
+        cl_phases = np.array(cl_phases)
         assert ((-360.0 < np.min(cl_phases)) and (np.max(cl_phases) < 0.0))
     
     # Find the M-contours
@@ -77,12 +95,10 @@ def closed_loop_contours(Gcl_mags, Gcl_phases):
     Gcl = Gcl_mags*sp.exp(1.j*Gcl_phases)
     return Gcl/(1.0 - Gcl)
 
-
 def m_circles(mags, phase_min=-359.75, phase_max=-0.25):
     phases = sp.radians(sp.linspace(phase_min, phase_max, 2000))
     Gcl_mags, Gcl_phases = sp.meshgrid(10.0**(mags/20.0), phases)
     return closed_loop_contours(Gcl_mags, Gcl_phases)
-
 
 def n_circles(phases, mag_min=-40.0, mag_max=12.0):
     mags = sp.linspace(10**(mag_min/20.0), 10**(mag_max/20.0), 2000)
@@ -90,14 +106,4 @@ def n_circles(phases, mag_min=-40.0, mag_max=12.0):
     return closed_loop_contours(Gcl_mags, Gcl_phases)
 
 
-def zpk(tf,show=False):
-    z = tf.pole
-    p = tf.pole
-    k = tf.dcgain
-    
-    if show == True:
-        print("gain : {)".format(k))
-        print("zeros : {)".format(z))
-        print("poles : {)".format(p))
-    
-    return z,p,k
+

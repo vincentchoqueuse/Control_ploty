@@ -2,7 +2,7 @@ import numpy as np
 import control as ctl
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from .utils import get_T, nichols_grid
+from .utils import get_T_max, nichols_grid
 
 color_list = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#EF553B", "brown"]
 
@@ -16,34 +16,48 @@ def default_layout(xlabel, ylabel, name):
     return layout
 
 
-def impulse(tf_list=[], N=200, T=None, name=None):
+def impulse(tf_list=[], N=100, T=None, name=None):
 
     data = []
-    T = get_T(tf_list, N=N, T=T)
+    T_max = get_T_max(tf_list,T=T,N=N)
 
-    for index, tf in enumerate(tf_list):
-        t, y = ctl.impulse_response(tf, T=T)
-        tf_name = "tf {}".format(index + 1)
-        data.append({"x": t, "y": y, "name": tf_name, "showlegend": False})
+    for index,tf in enumerate(tf_list):
+        if ctl.isctime(tf):
+            T = np.linspace(0,T_max,N)
+            line_shape="linear"
+        else:
+            T = np.arange(0,T_max,tf.dt)
+            line_shape="hv"
+        
+        t,y = ctl.impulse_response(tf, T=T)
+        tf_name = "tf {}".format(index+1)
+        data.append({"x":np.ravel(t),"y":np.ravel(y),"name":tf_name,"mode":"lines","showlegend":False,"line_shape":line_shape})
 
     layout = default_layout("time (s)", "response", name)
     fig = go.Figure(data, layout=layout)
-    fig.show()
+    return fig
 
 
-def step(tf_list=[], N=200, T=None, name=None):
+def step(tf_list=[], N=100, T=None, name=None):
 
     data = []
-    T = get_T(tf_list, N=N, T=T)
+    T_max = get_T_max(tf_list,T=T,N=N)
 
-    for index, tf in enumerate(tf_list):
-        t, y = ctl.step_response(tf, T=T)
-        tf_name = "tf {}".format(index + 1)
-        data.append({"x": t, "y": y, "name": tf_name, "showlegend": False})
+    for index,tf in enumerate(tf_list):
+        if ctl.isctime(tf):
+            T = np.linspace(0,T_max,N)
+            line_shape="linear"
+        else:
+            T = np.arange(0,T_max,tf.dt)
+            line_shape="hv"
+        
+        t,y = ctl.step_response(tf, T=T)
+        tf_name = "tf {}".format(index+1)
+        data.append({"x":np.ravel(t),"y":np.ravel(y),"name":tf_name,"mode":"lines","showlegend":False,"line_shape":line_shape})
 
     layout = default_layout("time (s)", "response", name)
     fig = go.Figure(data, layout=layout)
-    fig.show()
+    return fig
 
 
 # ZERO POLE PLOT
@@ -98,7 +112,7 @@ def pzmap(tf_list=[], name=None, layout=None):
     layout["yaxis"]["scaleanchor"] = "x"
     layout["yaxis"]["scaleratio"] = 1
     fig = go.Figure(data, layout=layout)
-    fig.show()
+    return fig
 
 
 # BODE PLOT
@@ -142,18 +156,10 @@ def bode(tf_list=[], omega=None, name=None):
     fig.update_xaxes(title_text="w (rad/s)", type="log", row=1, col=1)
     fig.update_yaxes(title_text="Phase", row=2, col=1)
     fig.update_xaxes(title_text="w (rad/s)", type="log", row=2, col=1)
-    fig.show()
+    return fig
 
 
-def nichols(
-    tf_list=[],
-    omega=None,
-    show_mag_grid=True,
-    show_phase_grid=False,
-    cl_mags=None,
-    cl_phases=None,
-    name=None,
-):
+def nichols(tf_list=[], omega=None, show_mag_grid=True, show_phase_grid=False, cl_mags=None, cl_phases=None, name=None):
 
     xlabel = "Phase (deg)"
     ylabel = "Magnitude (dB)"
@@ -204,4 +210,53 @@ def nichols(
                 go.Scatter(phase, hoverinfo="name", showlegend=False, line=line_phase)
             )
 
-    fig.show()
+    return fig
+
+
+def rlocus(tf_list=[],kvect=None, xlim=None, ylim=None, show_grid=None):
+    """Root locus plot
+        
+        Calculate the root locus by finding the roots of 1+k*TF(s) where TF is self.num(s)/self.den(s) and each k is an element of kvect.
+    """
+
+    xlabel = "Real Axis"
+    ylabel = "Imag Axis"
+    ylabel = "Magnitude (dB)"
+    hovertemplate = "<b>K</b>: %{text:.3f}<br><b>imag</b>: %{y:.3f}<br><b>real</b>: %{x:.3f}<br>m: %{customdata[0]:.3f}<br>wn: %{customdata[1]:.3f} rad/s"
+    
+    data = []
+    xlim = []
+    ylim = []
+    for index,tf in enumerate(tf_list):
+
+        r_list,k_list  = ctl.rlocus(tf, kvect, xlim=xlim, ylim=ylim, Plot=False)
+        
+        #get ylim and xlim
+        xlim_max = np.max(np.real(np.ravel(r_list)))
+        xlim_min = np.min(np.real(np.ravel(r_list)))
+        ylim_max = np.max(np.imag(np.ravel(r_list)))
+        ylim_min = np.min(np.imag(np.ravel(r_list)))
+        xlim = 1.2*np.array([xlim_min,xlim_max])
+        ylim = 1.2*np.array([ylim_min,ylim_max])
+        
+        tf_name = "tf {}".format(index+1)
+        r_list = np.transpose(r_list)
+        
+        first_point = dict(color = '#555', width = 1,dash = "dot")
+        
+        for index_r in range(len(r_list)) :
+            r_temp = r_list[index_r]
+            #compute equivalent continuous m, wn
+            r_list_comp =r_list.astype(complex) # WTF: the python control "damp" function is buggy due to this missing cast !
+            r_list_continuous = np.log(r_list_comp)/tf.dt
+            wn_vect = np.abs(r_list_continuous)
+            m_vect = -np.real(r_list_continuous)/wn_vect
+            custom_data = np.dstack((m_vect, wn_vect))[0]
+
+            data.append({"x":np.real(r_temp),"y":np.imag(r_temp),"name":tf_name,"customdata":custom_data,"hovertemplate": hovertemplate ,"text":k_list,"showlegend":False})
+            data.append({"x":[np.real(r_temp[0])],"y":[np.imag(r_temp[0])],"line":first_point, "mode": "markers","marker":{"symbol":"x","size":8},"showlegend":False})
+
+
+    layout = default_layout("Real Axis","Imag Axis",name=None)
+    fig = go.Figure(data,layout=layout)
+    return fig

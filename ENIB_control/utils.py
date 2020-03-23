@@ -4,18 +4,24 @@ from scipy.signal.ltisys import _default_response_times
 import control as ctl
 
 
-def get_T(tf_list, N=200, T=None):
+def get_T_max(tf_list,T=None,N=100):
     """ Get Time vector """
     if T is None:
-        t_max = 0
+        T_max = 100000
         for tf in tf_list:
-            ss = ctl.tf2ss(tf)
-            T_temp = _default_response_times(ss.A, N)
-            t_max_temp = T_temp[-1]
-            if t_max_temp > t_max:
-                t_max = t_max_temp
-                T = T_temp
-    return T
+            
+            if ctl.isctime(tf):
+                ss = ctl.tf2ss(tf)
+                T_temp = _default_response_times(ss.A, N)
+                t_max_temp = T_temp[-1]
+            else:
+                t_max_temp = N*tf.dt
+
+            if t_max_temp < T_max :
+                T_max = t_max_temp
+    else:
+        T_max = T[-1]
+    return T_max
 
 
 def nichols_grid(cl_mags=None, cl_phases=None):
@@ -137,3 +143,40 @@ def n_circles(phases, mag_min=-40.0, mag_max=12.0):
     mags = sp.linspace(10 ** (mag_min / 20.0), 10 ** (mag_max / 20.0), 2000)
     Gcl_phases, Gcl_mags = sp.meshgrid(sp.radians(phases), mags)
     return closed_loop_contours(Gcl_mags, Gcl_phases)
+
+
+# ROOT LOCUS (comes from the python control lib)
+
+def _default_zetas(xlim, ylim):
+    """Return default list of dumps coefficients"""
+    sep1 = -xlim[0]/4
+    ang1 = [np.arctan((sep1*i)/ylim[1]) for i in np.arange(1, 4, 1)]
+    sep2 = ylim[1] / 3
+    ang2 = [np.arctan(-xlim[0]/(ylim[1]-sep2*i)) for i in np.arange(1, 3, 1)]
+    
+    angules = np.concatenate((ang1, ang2))
+    angules = np.insert(angules, len(angules), np.pi/2)
+    zeta = np.sin(angules)
+    return zeta.tolist()
+
+
+def _default_wn(xloc, ylim):
+    """Return default wn for root locus plot"""
+    
+    wn = xloc
+    sep = xloc[1]-xloc[0]
+    while np.abs(wn[0]) < ylim[1]:
+        wn = np.insert(wn, 0, wn[0]-sep)
+    
+    while len(wn) > 7:
+        wn = wn[0:-1:2]
+    
+    return wn
+
+
+def rlocus_grid(xlim,ylim,zeta=None, wn=None):
+    
+    m_lines = []
+    wn_lines = []
+    
+    return m_lines,wn_lines

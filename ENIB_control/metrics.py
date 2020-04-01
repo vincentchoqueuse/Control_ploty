@@ -6,6 +6,9 @@ from scipy.signal.ltisys import _default_response_times
 def pole(sys):
     return sys.pole()
 
+def zero(sys):
+    return sys.zero()
+
 def damp(sys):
     
     is_continuous = ctl.isctime(sys)
@@ -23,7 +26,7 @@ def damp(sys):
         print("poles {:.3f} : wn={:.3f} rad/s, m= {:.3f}".format(pole, wn, m))
 
 
-def stepinfo(sys, T=None, SettlingTimeThreshold=0.05,RiseTimeLimits=(0.1, 0.9)):
+def stepinfo(sys, display=False, T=None, SettlingTimeThreshold=0.05,RiseTimeLimits=(0.1, 0.9)):
 
     T_max = get_T_max([sys],T=None,N=200)
 
@@ -34,4 +37,10 @@ def stepinfo(sys, T=None, SettlingTimeThreshold=0.05,RiseTimeLimits=(0.1, 0.9)):
             # For discrete time, use integers
             T = np.arange(0,T_max,sys.dt)
 
-    return ctl.step_info(sys,T,SettlingTimeThreshold=0.05,RiseTimeLimits=(0.1, 0.9))
+    info = ctl.step_info(sys,T,SettlingTimeThreshold=SettlingTimeThreshold,RiseTimeLimits=RiseTimeLimits)
+    
+    if display == True :
+        for keys,values in info.items():
+            print("{} :\t{:.5f}".format(keys,values))
+    
+    return info

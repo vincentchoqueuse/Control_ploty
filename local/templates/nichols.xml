@@ -1,0 +1,47 @@
+<question type="cloze">
+    <name>
+        <text>Question {{name}}</text>
+    </name>
+    <questiontext format="html">
+        <text><![CDATA[
+            <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+            <script>
+            document.addEventListener("DOMContentLoaded", function(){
+            var data = {{data}};
+            Plotly.newPlot("chart3", data);
+            });
+            </script>
+            
+            <h4>Enoncé</h4>
+            <p>Les Fonctions de transfert en boucle ouverte (FTBO) de 3 systèmes sont representées dans le plan de Black Nichols</p>
+            <ul>
+            <li>En bleu : le système \( F(z) \).</li>
+            <li>En orange : le système \( KF(z) \) où K correspond au gain d'un correcteur proportionnel.</li>
+            <li>En vert : le système \( C(z)F(z) \) où \( C(z) \) correspond à un correcteur proportionnel intégral (PI)</li>
+            
+            <div id="chart3" style="padding-top: 10px;width:100%; height:600px"></div>
+            
+            <h5 style="padding-top: 30px;">Déterminez les paramètres suivants</h5>
+            
+            <ul>
+             <li>Le <b>gain statique en Boucle ouverte</b> de \( F(z) \) (en dB) {{answer.0|moodle_numerical}}</li>
+             <li>La valeur de \( K \) (en valeur naturelle) {{answer.1|moodle_numerical}}
+             <li>Le <b>gain statique en Boucle fermée</b> de \( KF(z) \) (en dB) {{answer.2|moodle_numerical}}</li>
+             <li>Le facteur de résonance \( M_{dB} \) en Boucle fermée de  \( KF(z) \) (en dB) {{answer.3|moodle_numerical}}
+             <li>Le <b>gain statique en Boucle fermée</b> de \( C(z)F(z) \) (en dB) {{answer.4|moodle_numerical}}</li>
+             <li>Le facteur de résonance \( M_{dB} \) en Boucle fermée de  \( C(z)F(z) \) (en dB) {{answer.5|moodle_numerical}}</li>
+             <li>La <b>pulsation de résonance</b> en Boucle fermée de \( C(z)F(z) \) (en rad/s) {{answer.6|moodle_numerical}}.</li>
+             <li>La <b>marge de phase</b> pour le système \( C(z)F(z) \) (en deg) {{answer.7|moodle_numerical}}.</li>
+            <li>La <b>marge de gain </b> pour le système \( C(z)F(z) \) (en dB) {{answer.8|moodle_numerical}}.</li>
+            </ul>
+            
+            Pour chaque question numérique, la valeur est considérée bonne si l'écart entre la valeur indiquée et la valeur exacte est inférieur à 10%
+        ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+        <text></text>
+    </generalfeedback>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+</question>

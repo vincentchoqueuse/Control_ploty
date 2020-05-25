@@ -125,9 +125,7 @@ def bode(tf_list=[], omega=None, name=None):
 
     for index, tf in enumerate(tf_list):
 
-        mag_list, phase_list, omega = ctl.bode_plot(
-            tf, omega=omega, Plot=False, omega_limits=None, omega_num=None, margins=None
-        )
+        mag_list, phase_list, omega = ctl.bode_plot(tf, omega=omega, Plot=False, omega_limits=None, omega_num=None, margins=None)
         mag = 20 * np.log10(mag_list)
         phase = phase_list * 180 / np.pi
         tf_name = "tf {}".format(index + 1)
@@ -213,7 +211,7 @@ def nichols(tf_list=[], omega=None, show_mag_grid=True, show_phase_grid=False, c
     return fig
 
 
-def rlocus(tf_list=[],kvect=None, xlim=None, ylim=None, show_grid=None):
+def rlocus(tf_list=[],kvect=np.logspace(-2,1.2,1000), xlim=None, ylim=None, show_grid=None):
     """Root locus plot
         
         Calculate the root locus by finding the roots of 1+k*TF(s) where TF is self.num(s)/self.den(s) and each k is an element of kvect.

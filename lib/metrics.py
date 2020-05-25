@@ -37,10 +37,10 @@ def stepinfo(sys, display=False, T=None, SettlingTimeThreshold=0.05,RiseTimeLimi
             # For discrete time, use integers
             T = np.arange(0,T_max,sys.dt)
 
-    info = ctl.step_info(sys,T,SettlingTimeThreshold=SettlingTimeThreshold,RiseTimeLimits=RiseTimeLimits)
+    info = ctl.step_info(sys,T,SettlingTimeThreshold=0.05,RiseTimeLimits=(0.1, 0.9))
     
     if display == True :
         for keys,values in info.items():
             print("{} :\t{:.5f}".format(keys,values))
-    
+
     return info

@@ -1,3 +1,4 @@
 .DS_Store
 S6_asservissement.xcworkspace
 .ipynb_checkpoints
+local/
